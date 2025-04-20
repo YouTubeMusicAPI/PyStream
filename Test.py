@@ -20,21 +20,11 @@ async def main():
 
     try:
         await app.send_message(CHAT_USERNAME, "✅ Music bot has started and is ready to play music!")
-
-        chat = await app.get_chat("@tesinglele")
-        print(f"✅ Chat ID for @tesinglele is {chat.id}")
-        
-        member = await app.get_chat_member("@tesinglele", app.me.id)
-        print(f"✅ Membership check: {member.status}")
-        
-        if member.status in ["member", "administrator"]:
-            print("✅ Userbot is a member and has permissions.")
-            
-            try:
-                await app.join_voice_chat(chat.id)
-                print("✅ Joined voice chat successfully.")
-            except Exception as e:
-                print(f"[ERROR] Failed to join voice chat: {str(e)}")
+        try:
+            await app.join_voice_chat(chat.id)
+            print("✅ Joined voice chat successfully.")
+        except Exception as e:
+            print(f"[ERROR] Failed to join voice chat: {str(e)}")
 
             await pystream.stream(chat.id, URL)
             print("✅ Music bot is running.")
