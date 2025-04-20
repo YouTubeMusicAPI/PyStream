@@ -4,6 +4,8 @@ from PyStream.Client import PyStream
 from PyStream.Queue import AudioQueue
 from PyStream.Utils import get_video_duration, download_audio  # Ensure download_audio is an async function
 from PyStream.Types import Track
+from yt_dlp import YoutubeDL
+
 
 API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
@@ -19,28 +21,28 @@ async def play_song(client, message):
     if len(message.command) < 2:
         return await message.reply("❌ Send a YouTube or audio URL or song name.")
 
-    query = message.text.split(None, 1)[1]  # Get song name or URL
+    query = message.text.split(None, 1)[1]  
     chat_id = message.chat.id
 
     try:
-        # Get the URL from the download_audio function
-        audio_url = await download_audio(query)
-        
-        # Get the duration of the track
-        duration = await get_video_duration(audio_url)
+        if not validate_url(query):
+            search_url = f"ytsearch:{query}"
+            ydl_opts = {'format': 'bestaudio/best', 'extractaudio': True}
+            with YoutubeDL(ydl_opts) as ydl:
+                info_dict = ydl.extract_info(search_url, download=False)
+                url = info_dict['entries'][0]['url']
+                query = info_dict['entries'][0]['title']  
 
-        # Create track object using the audio URL
-        track = Track(title=query, url=audio_url, duration=duration)
-
+        track = await Track.create(url)
     except Exception as e:
         return await message.reply(f"❌ Error: {e}")
 
     if not vc.is_active(chat_id):
-        await vc.join(chat_id)  # Join the VC
-        await vc.stream(chat_id, track)  # Start playing the song
+        await vc.join(chat_id)
+        await vc.stream(chat_id, track)
         await message.reply(f"▶️ Playing: {track.title}")
     else:
-        queue.add(chat_id, track)  # Add to queue if VC is active
+        queue.add(chat_id, track)
         await message.reply(f"➕ Queued: {track.title}")
 
 @app.on_message(filters.command("skip") & filters.group)
