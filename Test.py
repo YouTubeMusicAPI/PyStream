@@ -1,6 +1,6 @@
 import asyncio
 from pyrogram import Client, filters, idle
-from PyStream import PyStream, Track, AudioQueue
+from .PyStream import PyStream, Track, AudioQueue
 
 API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
