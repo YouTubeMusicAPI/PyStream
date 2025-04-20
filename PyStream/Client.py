@@ -12,6 +12,7 @@ class PyStream:
         self.calls = {}
         self.queues = {}
         self.streams = {}
+        self.active_chats = set()
 
     async def join(self, chat_id: int):
         if chat_id in self.calls:
@@ -19,6 +20,7 @@ class PyStream:
         try:
             await self.client.join_group_call(chat_id, AudioHandler.dummy_input())
             self.calls[chat_id] = True
+            self.active_chats.add(chat_id)
         except Exception as e:
             raise VCJoinError(f"Error joining VC: {e}")
 
@@ -27,6 +29,7 @@ class PyStream:
             await self.client.leave_group_call(chat_id)
             self.calls.pop(chat_id)
             self._stop_audio(chat_id)
+            self.active_chats.discard(chat_id)
         else:
             raise VCJoinError(f"Not in VC for chat {chat_id}")
 
@@ -74,3 +77,6 @@ class PyStream:
         if chat_id in self.streams:
             self.streams[chat_id].kill()
             del self.streams[chat_id]
+
+    def is_active(self, chat_id: int):
+        return chat_id in self.active_chats
