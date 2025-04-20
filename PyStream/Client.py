@@ -30,6 +30,8 @@ class PyStream:
             chat = await self.client.get_chat(chat_id)
             if not chat or not chat.type == "supergroup" or not chat.permissions.can_send_messages:
                 raise VCJoinError(f"Bot cannot join the VC in chat {chat_id} due to permissions or chat type.")
+
+            await asyncio.sleep(2)
             
         except VCJoinError as e:
             print(f"[ERROR] {str(e)}")
