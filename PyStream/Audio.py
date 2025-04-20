@@ -5,6 +5,10 @@ from tempfile import NamedTemporaryFile
 class AudioHandler:
     @staticmethod
     def convert_to_mp3(input_file: str, output_file: str) -> None:
+        if not os.path.exists(input_file):
+            print(f"Error: Input file '{input_file}' does not exist.")
+            return
+
         try:
             cmd = [
                 'ffmpeg',
@@ -19,6 +23,10 @@ class AudioHandler:
 
     @staticmethod
     def stream_audio(input_file: str, output_file: str) -> None:
+        if not os.path.exists(input_file):
+            print(f"Error: Input file '{input_file}' does not exist.")
+            return
+
         try:
             cmd = [
                 'ffmpeg',
@@ -40,4 +48,3 @@ class AudioHandler:
         except Exception as e:
             print(f"Error creating temporary file: {e}")
             return ""
-            
