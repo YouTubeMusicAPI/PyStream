@@ -1,6 +1,6 @@
 import asyncio
 import os
-
+from typing import Union
 from pyrogram import Client
 from .Audio import AudioHandler
 from .Types import Track, QueueItem
@@ -15,7 +15,7 @@ class PyStream:
         self.queues = {}
         self.ffmpeg_processes = {}
 
-    async def join(self, chat_id: str) -> None:
+    async def join(self, chat_id: Union[int, str]) -> None:
         try:
             if chat_id in self.calls:
                 raise VCJoinError(f"Already in a call in chat {chat_id}")
