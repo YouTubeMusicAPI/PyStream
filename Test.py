@@ -56,7 +56,7 @@ async def stop_playing(client, message):
 async def main():
     await app.start()
     print("🎶 PyStream Music UserBot running...")
-    await vc.start()
+    await asyncio.get_event_loop().create_future()
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main())
