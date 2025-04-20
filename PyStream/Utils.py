@@ -52,3 +52,4 @@ def get_video_duration(url: str) -> int:
     except Exception as e:
         print(f"An unexpected error occurred while fetching video duration: {e}")
         return 0
+        
