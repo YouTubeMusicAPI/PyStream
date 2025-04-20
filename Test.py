@@ -3,7 +3,7 @@ from pyrogram import Client, filters, idle
 from PyStream.Client import PyStream
 from PyStream.Types import Track
 from PyStream.Queue import AudioQueue
-from PyStream.Utils import get_video_duration  # Import utility function for fetching video duration
+from PyStream.Utils import get_video_duration  # Ensure this is an async function
 
 API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
@@ -17,15 +17,15 @@ queue = AudioQueue()
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
-        return await message.reply("❌ Send a YouTube or audio URL.")
+        return await message.reply("❌ Send a YouTube or audio URL or song name.")
 
-    url = message.command[1]
+    query = message.text.split(None, 1)[1]
     chat_id = message.chat.id
 
     try:
-        # Manually create Track object with title and duration
-        track_duration = get_video_duration(url)  # Get duration using utility function
-        track = Track(title="Track", url=url, duration=track_duration)
+        # Get duration and create track object
+        duration = await get_video_duration(query)
+        track = Track(title=query, url=query, duration=duration)
     except Exception as e:
         return await message.reply(f"❌ Error: {e}")
 
@@ -47,7 +47,7 @@ async def skip_song(client, message):
         await message.reply(f"⏭ Now playing: {next_track.title}")
     else:
         await vc.leave(chat_id)
-        await message.reply("❌ Queue empty. Leaving VC.")
+        await message.reply("❌ Queue empty. Left VC.")
 
 @app.on_message(filters.command("stop") & filters.group)
 async def stop_playing(client, message):
@@ -63,3 +63,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main())
+    
