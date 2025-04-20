@@ -10,7 +10,7 @@ app = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, session_string=SESSIO
 
 pystream = PyStream(app)
 
-CHAT_ID = "-1002678147540"
+CHAT_ID = -1002678147540
 URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
