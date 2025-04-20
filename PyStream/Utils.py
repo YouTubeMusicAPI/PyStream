@@ -17,7 +17,7 @@ async def download_audio(query: str, output_format='mp3') -> str:
         'audioquality': 1,
         'outtmpl': './downloads/%(id)s.%(ext)s',
         'postprocessors': [{
-            'key': 'FFmpegAudio',
+            'key': 'FFmpegExtractAudio',
             'preferredcodec': output_format,
             'preferredquality': '192',
         }],
