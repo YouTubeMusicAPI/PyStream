@@ -7,6 +7,7 @@ def download_audio(url: str, output_format='mp3') -> str:
         'extractaudio': True,
         'audioquality': 1,
         'outtmpl': f'./downloads/%(id)s.%(ext)s',
+        'cookiefile': 'cookies/cookies.txt',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': output_format,
