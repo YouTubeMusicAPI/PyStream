@@ -19,6 +19,9 @@ async def main():
     await app.start()
 
     try:
+        abhi = await app.send_message(CHAT_ID, "✅ Music bot has started and is ready to play music!")
+        print(abhi)
+        
         chat = await app.get_chat(CHAT_USERNAME)
         chat_id = chat.id
         print(f"✅ Chat ID for {CHAT_USERNAME} is {chat_id}")
