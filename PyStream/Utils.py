@@ -24,9 +24,10 @@ def download_audio(url: str, output_format='mp3') -> str:
         os.remove(filename)
         return output_path
 
+
 def validate_url(url: str) -> bool:
-    youtube_pattern = r'(https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+)'
-    if re.match(youtube_pattern, url):
+    youtube_pattern = r'(https?://(?:www\.)?(?:youtube\.com/watch\?v=[\w-]+|youtu\.be/[\w-]+))'
+    if re.search(youtube_pattern, url):
         return True
     return False
 
