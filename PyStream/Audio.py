@@ -18,8 +18,15 @@ class AudioHandler:
             ]
             subprocess.run(cmd, check=True)
             print(f"Conversion successful: {output_file}")
+
+            # After conversion, check if the file exists and remove it
+            if os.path.exists(input_file):
+                os.remove(input_file)
+                print(f"Deleted original file: {input_file}")
         except subprocess.CalledProcessError as e:
             print(f"Error during conversion: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred during conversion: {e}")
 
     @staticmethod
     def stream_audio(input_file: str, output_file: str) -> None:
