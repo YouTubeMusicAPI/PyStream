@@ -70,6 +70,7 @@ async def get_stream_url(query):
         'extractaudio': True,
         'audioquality': 1,
         'quiet': True,
+        'noplaylist': True,
         'cookiefile': 'cookies/cookies.txt',
     }
     search_query = f"ytsearch:{query}"
