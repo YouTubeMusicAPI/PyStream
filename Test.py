@@ -71,7 +71,7 @@ async def get_stream_url(query):
         'audioquality': 1,  # Highest quality audio
         'outtmpl': 'downloads/%(id)s.%(ext)s',
         'quiet': True,
-        'cookiefile': "cookies/cookies.txt",
+        'cookiefile': 'cookies/cookies.txt',
     }
     search_query = f"ytsearch:{query}"
 
