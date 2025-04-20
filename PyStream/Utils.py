@@ -22,6 +22,8 @@ async def download_audio(query: str, output_format='mp3') -> str:
             'preferredquality': '192',
         }],
         'cookiefile': cookies/cookies.txt,
+        'quiet': True,
+        'no_warnings': True,
     }
 
     try:
