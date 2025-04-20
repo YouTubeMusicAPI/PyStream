@@ -17,8 +17,10 @@ async def main():
     await app.start()
     
     try:
-        me = await app.get_me()
-        print(f"Logged in as: {me.first_name} | Is Bot? {me.is_bot}")
+        user = await app.get_me()
+        print(f"Checking membership for: {user.id} ({user.first_name})")
+        member = await app.get_chat_member(chat_id, user.id)
+        print(f"Status: {member.status}")
         
         await app.join_chat("@tesinglele")
         print("✅ Joined chat @tesinglele")
