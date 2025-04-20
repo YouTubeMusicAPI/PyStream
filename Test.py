@@ -15,12 +15,27 @@ URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
     await app.start()
-    chat = await app.get_chat()
-    chat_id = chat.id
-    print(chat_id)
-    await pystream.join("@tesinglele")
-    await pystream.stream("@tesinglele", URL)
-    print("✅ Music bot running.")
+
+    try:
+        chat = await app.get_chat("@tesinglele")
+        chat_id = chat.id
+        print(f"✅ Chat ID for @tesinglele is {chat_id}")
+    except Exception as e:
+        print(f"[ERROR] Failed to get chat info: {e}")
+        return
+
+    try:
+        await pystream.join(chat_id)
+        print("✅ Joined voice chat.")
+    except Exception as e:
+        print(f"[ERROR] Failed to join VC: {e}")
+        return
+
+    try:
+        await pystream.stream(chat_id, URL)
+        print("🎶 Streaming started.")
+    except Exception as e:
+        print(f"[ERROR] Streaming failed: {e}")
     await asyncio.get_event_loop().create_future()
 
 # Start the bot
