@@ -30,36 +30,50 @@ YDL_OPTS = {
 async def get_stream_url(query: str) -> tuple[str, str]:
     results = await Search(query, limit=1)
     if not results:
-        raise Exception(f"❌ Song '{query}' not found.")
-    url = results[0].get("url")
-    title = results[0].get("title")
-    if not url:
-        raise Exception("❌ Invalid URL found in search result.")
+        raise Exception(f"❌ No results found for: {query}")
+    
+    result = results[0]
+    video_id = result.get("videoId") or result.get("id")
+    title = result.get("title")
+
+    if not video_id:
+        raise Exception("❌ Couldn't extract video ID from search result.")
+    
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    print(f"🔍 Found video: {title} ({url})")
+
     loop = asyncio.get_event_loop()
     data = await loop.run_in_executor(None, lambda: YoutubeDL(YDL_OPTS).extract_info(url, download=False))
-    if not data or "url" not in data:
-        raise Exception("❌ Failed to extract stream URL.")
-    return data["url"], title
 
+    if not data or "url" not in data:
+        raise Exception("❌ yt-dlp failed to extract direct audio URL.")
+
+    stream_url = data["url"]
+    return stream_url, title
 
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
         return await message.reply("❌ Please provide a song name.")
+    
     query = message.text.split(None, 1)[1]
     chat_id = message.chat.id
+
     try:
         stream_url, title = await get_stream_url(query)
         await message.reply("🎧 Joining voice chat...")
-        if not vc.is_active(chat_id):
+
+        if not vc.is_streaming(chat_id):
             await vc.join(chat_id)
             await vc.stream(chat_id, stream_url)
             return await message.reply(f"▶️ Now Playing: {title}")
         else:
             queue.add(chat_id, stream_url)
             return await message.reply(f"➕ Added to Queue: {title}")
+    
     except Exception as e:
-        return await message.reply(f"❌ Error: {str(e)}")
+        return await message.reply(f"❌ Error: {e}")
+
 
 
 
