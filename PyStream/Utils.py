@@ -3,19 +3,17 @@ import re
 import os
 from .Audio import AudioHandler
 
-def download_audio(url: str, output_format='mp3') -> str:
+def download_audio(url: str):
+    cookies_path = "cookies/cookies.txt"
     ydl_opts = {
-        'cookiefile': 'cookies/cookies.txt',
         'format': 'bestaudio/best',
-        'extractaudio': True,
-        'audioquality': 1,
-        'outtmpl': f'./downloads/%(id)s.%(ext)s',
-        
         'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': output_format,
+            'key': 'FFmpegAudio',
+            'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
+        'outtmpl': './downloads/%(id)s.%(ext)s',
+        'cookiefile': cookies_path,
     }
 
     try:
