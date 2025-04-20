@@ -8,18 +8,16 @@ SESSION = "BQBclYcAfwPhsOaYEN9rZiJTeqV1e-mW90J3pxU5lU-HRDBDir4n236Uy6xowZLnSJ83D
 
 app = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, session_string=SESSION)
 
-
 pystream = PyStream(app)
 
-CHAT_ID = "-1002678147540"  # Replace with a group/channel ID where VC is available
-URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"  # Example song link (can be direct too)
-
+CHAT_ID = "-1002678147540"
+URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
     await app.start()
     await pystream.stream(CHAT_ID, URL)
-    await asyncio.sleep(15)  # Wait while audio plays
+    await asyncio.sleep(15)
     await pystream.leave(CHAT_ID)
     await app.stop()
 
-asyncio.run(main())
+app.run(main())
