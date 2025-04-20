@@ -19,33 +19,37 @@ async def main():
     await app.start()
 
     try:
-        abhi = await app.send_message(CHAT_USERNAME, "✅ Music bot has started and is ready to play music!")
-        print(abhi)
+        await app.send_message(CHAT_USERNAME, "✅ Music bot has started and is ready to play music!")
+
+        chat = await app.get_chat("@tesinglele")
+        print(f"✅ Chat ID for @tesinglele is {chat.id}")
         
-        chat = await app.get_chat(CHAT_USERNAME)
-        chat_id = chat.id
-        print(f"✅ Chat ID for {CHAT_USERNAME} is {chat_id}")
-
-        user = await app.get_me()
-        member = await app.get_chat_member(chat_id, user.id)
+        member = await app.get_chat_member("@tesinglele", app.me.id)
         print(f"✅ Membership check: {member.status}")
-        try:
-            await app.join_voice_chat(chat.id)
-            print("✅ Joined voice chat successfully.")
-        except Exception as e:
-           print(f"[ERROR] Failed to get chat info or join chat: {e}")
-           return
+        
+        if member.status in ["member", "administrator"]:
+            print("✅ Userbot is a member and has permissions.")
+            
+            try:
+                await app.join_voice_chat(chat.id)
+                print("✅ Joined voice chat successfully.")
+            except Exception as e:
+                print(f"[ERROR] Failed to join voice chat: {str(e)}")
 
-    try:
-        await pystream.join(CHAT_USERNAME)
-        print("✅ Joined voice chat.")
-        await pystream.stream(CHAT_USERNAME, URL)
+            await pystream.stream(chat.id, URL)
+            print("✅ Music bot is running.")
+
+        else:
+            print("[ERROR] Userbot is not a member or admin in the group.")
+
     except Exception as e:
-        print(f"[ERROR] Streaming failed: {e}")
-
-    print("✅ Music bot running.")
+        print(f"[ERROR] Failed to join or stream: {str(e)}")
+    
     await asyncio.get_event_loop().create_future()
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print("Userbot stopped manually.")
