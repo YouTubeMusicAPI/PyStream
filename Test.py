@@ -29,6 +29,9 @@ async def main():
         user = await app.get_me()
         member = await app.get_chat_member(chat_id, user.id)
         print(f"✅ Membership check: {member.status}")
+        try:
+            await app.join_voice_chat(chat.id)
+            print("✅ Joined voice chat successfully.")
     except Exception as e:
         print(f"[ERROR] Failed to get chat info or join chat: {e}")
         return
