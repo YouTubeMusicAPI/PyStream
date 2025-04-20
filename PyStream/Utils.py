@@ -22,7 +22,7 @@ def download_audio(url: str, output_format='mp3') -> str:
             info_dict = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info_dict)
             output_path = filename.replace(".webm", f".{output_format}")
-            
+            AudioHandler.convert_to_mp3(filename, output_path)
             if os.path.exists(filename):
                 os.remove(filename)
                 
