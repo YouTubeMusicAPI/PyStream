@@ -6,7 +6,6 @@ from PyStream.Utils import get_video_duration, download_audio, validate_url
 from PyStream.Types import Track
 from yt_dlp import YoutubeDL
 
-
 API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
 SESSION = "BQBclYcAfwPhsOaYEN9rZiJTeqV1e-mW90J3pxU5lU-HRDBDir4n236Uy6xowZLnSJ83DDyV-7m8NommEpFKXVZMwRR41bXxvE8JzhIcLIJnCP5yObgE3yRkljsE36qEsdVYTgggdMSHrhoFWZG5YuOIJ0hi1HpqzOJhocARqoVbys1-CNSjTAEXdNB3knhatAqkHVnHfWcgvtshc3iiru3Gjpl9lXaPnLL5p5GP11dL8vRS4Dob-8nZW2vEkXqsD4-Ce6BAD8m4RIqTsomtrQCgaH4ugYfpFuKVr_oz04hUTjB4MzXK-Wr_Fz5Lk42PnrE3wWEwhsfgOVu8AM02YlKLV77MegAAAAHKUdR6AA"
@@ -21,23 +20,23 @@ async def play_song(client, message):
     if len(message.command) < 2:
         return await message.reply("❌ Send a YouTube or audio URL or song name.")
 
-    query = message.text.split(None, 1)[1]  
+    query = message.text.split(None, 1)[1]
     chat_id = message.chat.id
 
     try:
         if not validate_url(query):
             search_url = f"ytsearch:{query}"
             ydl_opts = {
-                'format': 'bestaudio/best', 
+                'format': 'bestaudio/best',
                 'extractaudio': True,
                 'cookiefile': "cookies/cookies.txt"
             }
             with YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(search_url, download=False)
                 url = info_dict['entries'][0]['url']
-                query = info_dict['entries'][0]['title']  
+                query = info_dict['entries'][0]['title']
 
-        track = await Track.create(url)
+        track = Track(url=url, title=query, duration=get_video_duration(url))
     except Exception as e:
         return await message.reply(f"❌ Error: {e}")
 
@@ -55,17 +54,17 @@ async def skip_song(client, message):
 
     if queue.exists(chat_id):
         next_track = queue.pop(chat_id)
-        await vc.stream(chat_id, next_track)  # Skip to next track
+        await vc.stream(chat_id, next_track)
         await message.reply(f"⏭ Now playing: {next_track.title}")
     else:
-        await vc.leave(chat_id)  # Leave the VC if no tracks are in queue
+        await vc.leave(chat_id)
         await message.reply("❌ Queue empty. Left VC.")
 
 @app.on_message(filters.command("stop") & filters.group)
 async def stop_playing(client, message):
     chat_id = message.chat.id
-    await vc.leave(chat_id)  # Leave the VC
-    queue.clear(chat_id)  # Clear the queue
+    await vc.leave(chat_id)
+    queue.clear(chat_id)
     await message.reply("⏹ Stopped music and left VC.")
 
 async def main():
