@@ -70,15 +70,20 @@ async def play_song(client, message):
 
     try:
         stream_url, title = await get_stream_url(query)
-        await vc.stream(chat_id, stream_url)
-        await message.reply(f"▶️ Now Playing: {title}")
-
+        
+        # Check if there is already an active voice chat
+        if not vc.is_active(chat_id):
+            await vc.join(chat_id)
+            await vc.stream(chat_id, stream_url)
+            await message.reply(f"▶️ Now Playing: {title}")
         else:
+            # If there's already a voice chat, add the song to the queue
             queue.add(chat_id, stream_url)
-            return await message.reply(f"➕ Added to Queue: {title}")
+            await message.reply(f"➕ Added to Queue: {title}")
     
     except Exception as e:
         return await message.reply(f"❌ Error: {e}")
+
 
 
 
