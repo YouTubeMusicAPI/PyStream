@@ -27,35 +27,40 @@ YDL_OPTS = {
     "cookiefile": "cookies/cookies.txt",
 }
 
-async def get_stream_url(query: str) -> str:
-    search_results = await Search(query, limit=1)
-    if not search_results:
+async def get_stream_url(query: str) -> tuple[str, str]:
+    results = await Search(query, limit=1)
+    if not results:
         raise Exception(f"❌ Song '{query}' not found.")
-    url = search_results[0]["url"]
+    url = results[0].get("url")
+    title = results[0].get("title")
+    if not url:
+        raise Exception("❌ Invalid URL found in search result.")
     loop = asyncio.get_event_loop()
     data = await loop.run_in_executor(None, lambda: YoutubeDL(YDL_OPTS).extract_info(url, download=False))
-    if "url" not in data:
-        raise Exception(f"❌ Failed to extract stream URL for '{query}'.")
-    return data["url"], search_results[0]["title"]
+    if not data or "url" not in data:
+        raise Exception("❌ Failed to extract stream URL.")
+    return data["url"], title
+
 
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
-        return await message.reply("❌ Please provide a song name to play.")
+        return await message.reply("❌ Please provide a song name.")
     query = message.text.split(None, 1)[1]
     chat_id = message.chat.id
     try:
         stream_url, title = await get_stream_url(query)
+        await message.reply("🎧 Joining voice chat...")
         if not vc.is_active(chat_id):
-            await message.reply("🎧 Joining voice chat...")
             await vc.join(chat_id)
             await vc.stream(chat_id, stream_url)
-            return await message.reply(f"▶️ Playing: {title}")
+            return await message.reply(f"▶️ Now Playing: {title}")
         else:
             queue.add(chat_id, stream_url)
-            return await message.reply(f"➕ Queued: {title}")
+            return await message.reply(f"➕ Added to Queue: {title}")
     except Exception as e:
-        return await message.reply(str(e))
+        return await message.reply(f"❌ Error: {str(e)}")
+
 
 
 @app.on_message(filters.command("skip") & filters.group)
