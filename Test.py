@@ -34,19 +34,21 @@ async def play_song(client, message):
             with YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(search_url, download=False)
                 url = info_dict['entries'][0]['url']
-                query = info_dict['entries'][0]['title']
+                title = info_dict['entries'][0]['title']
+        else:
+            url = query
+            title = query
 
-        track = Track(url=url, title=query, duration=get_video_duration(url))
+        if not vc.is_active(chat_id):
+            await vc.join(chat_id)
+            await vc.stream(chat_id, url)
+            await message.reply(f"▶️ Playing: {title}")
+        else:
+            queue.add(chat_id, url)
+            await message.reply(f"➕ Queued: {title}")
+
     except Exception as e:
-        return await message.reply(f"❌ Error: {e}")
-
-    if not vc.is_active(chat_id):
-        await vc.join(chat_id)
-        await vc.stream(chat_id, track)
-        await message.reply(f"▶️ Playing: {track.title}")
-    else:
-        queue.add(chat_id, track)
-        await message.reply(f"➕ Queued: {track.title}")
+        await message.reply(f"❌ Error: {e}")
 
 @app.on_message(filters.command("skip") & filters.group)
 async def skip_song(client, message):
