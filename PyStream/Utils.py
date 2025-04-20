@@ -7,13 +7,13 @@ def download_audio(url: str):
     cookies_path = "cookies/cookies.txt"
     ydl_opts = {
         'format': 'bestaudio/best',
+        'cookiefile': cookies_path,
         'postprocessors': [{
-            'key': 'FFmpegAudio',
+            'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
         'outtmpl': './downloads/%(id)s.%(ext)s',
-        'cookiefile': cookies_path,
     }
 
     try:
