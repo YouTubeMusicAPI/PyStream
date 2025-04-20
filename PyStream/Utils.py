@@ -9,6 +9,7 @@ def download_audio(url: str, output_format='mp3') -> str:
         'extractaudio': True,
         'audioquality': 1,
         'outtmpl': f'./downloads/%(id)s.%(ext)s',
+        'cookiefile': 'cookies/cookies.txt',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': output_format,
@@ -16,13 +17,16 @@ def download_audio(url: str, output_format='mp3') -> str:
         }],
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=false)
-        filename = ydl.prepare_filename(info_dict)
-        output_path = filename.replace(".webm", f".{output_format}")
-        AudioHandler.convert_to_mp3(filename, output_path)
-        os.remove(filename)
-        return output_path
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info_dict)
+            output_path = filename.replace(".webm", f".{output_format}")
+            
+            if os.path.exists(filename):
+                os.remove(filename)
+                
+            return output_path
 
 
 def validate_url(url: str) -> bool:
