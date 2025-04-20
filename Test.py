@@ -73,10 +73,11 @@ async def get_stream_url(query):
         'quiet': True,
         'cookiefile': "cookies/cookies.txt",
     }
+    search_query = f"ytsearch:{query}"
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
-            info_dict = ydl.extract_info(query, download=False)
+            info_dict = ydl.extract_info(search_query, download=False)
             stream_url = info_dict['url']
             title = info_dict.get('title', 'Unknown Title')
             
