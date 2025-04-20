@@ -13,7 +13,7 @@ app = Client("MusicBotUser", api_id=API_ID, api_hash=API_HASH, session_string=SE
 vc = PyStream(app)
 queue = AudioQueue()
 
-@app.on_message(filters.command("play") & filters.chat_type.groups)
+@app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
         return await message.reply("❌ Send a YouTube or audio URL.")
@@ -34,7 +34,7 @@ async def play_song(client, message):
         queue.add(chat_id, track)
         await message.reply(f"➕ Queued: {track.title}")
 
-@app.on_message(filters.command("skip") & filters.chat_type.groups)
+@app.on_message(filters.command("skip") & filters.group)
 async def skip_song(client, message):
     chat_id = message.chat.id
 
@@ -46,7 +46,7 @@ async def skip_song(client, message):
         await vc.leave(chat_id)
         await message.reply("❌ Queue empty. Leaving VC.")
 
-@app.on_message(filters.command("stop") & filters.chat_type.groups)
+@app.on_message(filters.command("stop") & filters.group)
 async def stop_playing(client, message):
     chat_id = message.chat.id
     await vc.leave(chat_id)
