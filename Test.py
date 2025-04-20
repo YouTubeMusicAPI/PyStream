@@ -33,20 +33,17 @@ async def get_stream_url(query: str) -> tuple[str, str]:
         raise Exception(f"❌ No results found for: {query}")
     
     result = results[0]
-    video_id = result.get("videoId") or result.get("id")
-    title = result.get("title")
+    url = result.get("url")
+    title = result.get("title", "Unknown Title")
 
-    if not video_id:
-        raise Exception("❌ Couldn't extract video ID from search result.")
-    
-    url = f"https://www.youtube.com/watch?v={video_id}"
-    print(f"🔍 Found video: {title} ({url})")
+    if not url:
+        raise Exception("❌ No URL found in the result.")
 
     loop = asyncio.get_event_loop()
     data = await loop.run_in_executor(None, lambda: YoutubeDL(YDL_OPTS).extract_info(url, download=False))
 
-    if not data or "url" not in data:
-        raise Exception("❌ yt-dlp failed to extract direct audio URL.")
+    if "url" not in data:
+        raise Exception(f"❌ yt-dlp failed to extract stream URL for: {query}")
 
     stream_url = data["url"]
     return stream_url, title
@@ -61,11 +58,8 @@ async def play_song(client, message):
 
     try:
         stream_url, title = await get_stream_url(query)
-        await message.reply("🎧 Joining voice chat...")
-
-        if not vc.is_streaming(chat_id):
-            await vc.join(chat_id)
             await vc.stream(chat_id, stream_url)
+
             return await message.reply(f"▶️ Now Playing: {title}")
         else:
             queue.add(chat_id, stream_url)
