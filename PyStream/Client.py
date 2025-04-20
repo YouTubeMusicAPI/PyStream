@@ -19,6 +19,10 @@ class PyStream:
         try:
             if chat_id in self.calls:
                 raise VCJoinError(f"Already in a call in chat {chat_id}")
+
+            chat_member = await self.client.get_chat_member(chat_id, self.client.me.id)
+            if chat_member.status not in ["member", "administrator"]:
+                raise VCJoinError(f"Bot is not a member of chat {chat_id}")
             
             self.calls[chat_id] = True
             print(f"[JOIN] Successfully joined VC in {chat_id}")
