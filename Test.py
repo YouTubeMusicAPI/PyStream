@@ -15,13 +15,19 @@ URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
     await app.start()
-
+    
     try:
+        me = await app.get_me()
+        print(f"Logged in as: {me.first_name} | Is Bot? {me.is_bot}")
+        
+        await app.join_chat("@tesinglele")
+        print("✅ Joined chat @tesinglele")
+
         chat = await app.get_chat("@tesinglele")
         chat_id = chat.id
         print(f"✅ Chat ID for @tesinglele is {chat_id}")
     except Exception as e:
-        print(f"[ERROR] Failed to get chat info: {e}")
+        print(f"[ERROR] Failed to get chat info or join chat: {e}")
         return
 
     try:
