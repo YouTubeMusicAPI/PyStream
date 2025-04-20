@@ -2,7 +2,7 @@ import asyncio
 from pyrogram import Client, filters, idle
 from PyStream.Client import PyStream
 from PyStream.Queue import AudioQueue
-from PyStream.Utils import get_video_duration, download_audio  # Ensure download_audio is an async function
+from PyStream.Utils import get_video_duration, download_audio, validate_url
 from PyStream.Types import Track
 from yt_dlp import YoutubeDL
 
