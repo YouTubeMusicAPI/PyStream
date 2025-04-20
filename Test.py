@@ -14,10 +14,14 @@ CHAT_ID = "-1002678147540"
 URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
-    await app.start()
-    await pystream.stream(CHAT_ID, URL)
-    await asyncio.sleep(15)
-    await pystream.leave(CHAT_ID)
-    await app.stop()
+    try:
+        await app.start()
+        await pystream.stream(CHAT_ID, URL)
+        await asyncio.sleep(15)
+        await pystream.leave(CHAT_ID)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        await app.stop()
 
 app.run(main())
