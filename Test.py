@@ -10,18 +10,20 @@ app = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, session_string=SESSIO
 
 pystream = PyStream(app)
 
-CHAT_ID = "-1002209504301"
+CHAT_ID = "-1002678147540"
 URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
-    try:
-        await app.start()
-        await pystream.stream(CHAT_ID, URL)
-        await asyncio.sleep(15)
-        await pystream.leave(CHAT_ID)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        await app.stop()
+    await app.start()
+    await pystream.stream(URL, CHAT_ID)
+    print("✅ Music bot running.")
+    await asyncio.get_event_loop().create_future()
 
-app.run(main())
+# Start the bot
+if __name__ == "__main__":
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print("Bot stopped manually.")
+        
