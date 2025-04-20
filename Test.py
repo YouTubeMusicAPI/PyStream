@@ -15,8 +15,8 @@ URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
     await app.start()
-    await pystream.join(@testinglele)
-    await pystream.stream(@testinglele, URL)
+    await pystream.join("@testinglele")
+    await pystream.stream("@testinglele", URL)
     print("✅ Music bot running.")
     await asyncio.get_event_loop().create_future()
 
