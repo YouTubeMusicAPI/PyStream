@@ -46,7 +46,7 @@ class PyStream:
         else:
             raise VCJoinError(f"Not in a voice chat for chat {chat_id}")
 
-    async def stream(self, chat_id: str, url: str) -> None:
+    async def stream(self, chat_id: Union[int, str], url: str) -> None:
         if not validate_url(url):
             raise InvalidURL("Invalid URL provided.")
         try:
