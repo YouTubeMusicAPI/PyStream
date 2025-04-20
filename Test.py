@@ -68,8 +68,7 @@ async def get_stream_url(query):
     ydl_opts = {
         'format': 'bestaudio/best',
         'extractaudio': True,
-        'audioquality': 1,  # Highest quality audio
-        'outtmpl': 'downloads/%(id)s.%(ext)s',
+        'audioquality': 1,
         'quiet': True,
         'cookiefile': 'cookies/cookies.txt',
     }
