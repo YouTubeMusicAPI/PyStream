@@ -27,7 +27,11 @@ async def play_song(client, message):
     try:
         if not validate_url(query):
             search_url = f"ytsearch:{query}"
-            ydl_opts = {'format': 'bestaudio/best', 'extractaudio': True}
+            ydl_opts = {
+                'format': 'bestaudio/best', 
+                'extractaudio': True,
+                'cookiefile': "cookies/cookies.txt"
+            }
             with YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(search_url, download=False)
                 url = info_dict['entries'][0]['url']
