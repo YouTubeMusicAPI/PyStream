@@ -8,16 +8,15 @@ API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
 SESSION = "BQBclYcAfwPhsOaYEN9rZiJTeqV1e-mW90J3pxU5lU-HRDBDir4n236Uy6xowZLnSJ83DDyV-7m8NommEpFKXVZMwRR41bXxvE8JzhIcLIJnCP5yObgE3yRkljsE36qEsdVYTgggdMSHrhoFWZG5YuOIJ0hi1HpqzOJhocARqoVbys1-CNSjTAEXdNB3knhatAqkHVnHfWcgvtshc3iiru3Gjpl9lXaPnLL5p5GP11dL8vRS4Dob-8nZW2vEkXqsD4-Ce6BAD8m4RIqTsomtrQCgaH4ugYfpFuKVr_oz04hUTjB4MzXK-Wr_Fz5Lk42PnrE3wWEwhsfgOVu8AM02YlKLV77MegAAAAHKUdR6AA"
 
-
 app = Client("MusicBotUser", api_id=API_ID, api_hash=API_HASH, session_string=SESSION)
 
-vc = PyStream()
+vc = PyStream(app)
 queue = AudioQueue()
 
 @app.on_message(filters.command("play") & filters.chat_type.groups)
 async def play_song(client, message):
     if len(message.command) < 2:
-        return await message.reply("Send a YouTube or audio URL.")
+        return await message.reply("❌ Send a YouTube or audio URL.")
 
     url = message.command[1]
     chat_id = message.chat.id
@@ -62,4 +61,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-  
