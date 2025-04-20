@@ -46,7 +46,7 @@ async def play_song(client, message):
     chat_id = message.chat.id
     try:
         stream_url, title = await get_stream_url(query)
-        if not vc.is_streaming(chat_id):
+        if not vc.is_active(chat_id):
             await message.reply("🎧 Joining voice chat...")
             await vc.join(chat_id)
             await vc.stream(chat_id, stream_url)
