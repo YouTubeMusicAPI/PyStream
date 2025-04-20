@@ -15,8 +15,9 @@ URL = "https://youtu.be/ifgr36iVY08?si=1LJvd1CENxCG9j_q"
 
 async def main():
     await app.start()
-    chat = await app.get_chat(CHAT_ID)
+    chat = await app.get_chat()
     chat_id = chat.id
+    print(chat_id)
     await pystream.join("@tesinglele")
     await pystream.stream("@tesinglele", URL)
     print("✅ Music bot running.")
