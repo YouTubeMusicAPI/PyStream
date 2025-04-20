@@ -28,7 +28,11 @@ YDL_OPTS = {
 }
 
 async def get_stream_url(query: str) -> tuple[str, str]:
+    print(f"[🔍] Searching for: {query}")
+    
     results = await Search(query, limit=1)
+    print(f"[📦] Search results: {results}")
+    
     if not results:
         raise Exception(f"❌ No results found for: {query}")
     
@@ -36,18 +40,26 @@ async def get_stream_url(query: str) -> tuple[str, str]:
     url = result.get("url")
     title = result.get("title", "Unknown Title")
 
+    print(f"[✅] Found YouTube URL: {url}")
+    print(f"[🎵] Title: {title}")
+
     if not url:
         raise Exception("❌ No URL found in the result.")
-
+    
     loop = asyncio.get_event_loop()
+    print("[⏳] Extracting stream URL using yt-dlp...")
+    
     data = await loop.run_in_executor(None, lambda: YoutubeDL(YDL_OPTS).extract_info(url, download=False))
-
-    if "url" not in data:
-        raise Exception(f"❌ yt-dlp failed to extract stream URL for: {query}")
-
+    
+    print(f"[📡] yt-dlp data: {data.keys() if isinstance(data, dict) else data}")
+    
+    if not isinstance(data, dict) or "url" not in data:
+        raise Exception(f"❌ Failed to extract stream URL for: {query}")
+    
     stream_url = data["url"]
+    print(f"[🎧] Final Stream URL: {stream_url}")
+    
     return stream_url, title
-
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
@@ -58,9 +70,9 @@ async def play_song(client, message):
 
     try:
         stream_url, title = await get_stream_url(query)
-            await vc.stream(chat_id, stream_url)
+        await vc.stream(chat_id, stream_url)
+        await message.reply(f"▶️ Now Playing: {title}")
 
-            return await message.reply(f"▶️ Now Playing: {title}")
         else:
             queue.add(chat_id, stream_url)
             return await message.reply(f"➕ Added to Queue: {title}")
