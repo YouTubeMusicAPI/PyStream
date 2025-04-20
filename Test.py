@@ -18,28 +18,32 @@ queue = AudioQueue()
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
-        return await message.reply("❌ Send a YouTube or audio URL or song name.")
+        return await message.reply("❌ Send a YouTube link or song name to play.")
 
     query = message.text.split(None, 1)[1]
     chat_id = message.chat.id
 
     try:
-        if not validate_url(query):
-            search_url = f"ytsearch:{query}"
+        if validate_url(query):
+            url = query
+            title = query
+        else:
             ydl_opts = {
                 'format': 'bestaudio/best',
-                'extractaudio': True,
+                'noplaylist': True,
+                'quiet': True,
                 'cookiefile': "cookies/cookies.txt"
             }
             with YoutubeDL(ydl_opts) as ydl:
-                info_dict = ydl.extract_info(search_url, download=False)
-                url = info_dict['entries'][0]['url']
-                title = info_dict['entries'][0]['title']
-        else:
-            url = query
-            title = query
+                info = ydl.extract_info(f"ytsearch:{query}", download=False)
+                if 'entries' in info and len(info['entries']) > 0:
+                    url = info['entries'][0]['url']
+                    title = info['entries'][0]['title']
+                else:
+                    return await message.reply("❌ No results found on YouTube.")
 
         if not vc.is_active(chat_id):
+            await message.reply("🎧 Joining voice chat...")
             await vc.join(chat_id)
             await vc.stream(chat_id, url)
             await message.reply(f"▶️ Playing: {title}")
@@ -49,6 +53,7 @@ async def play_song(client, message):
 
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
+
 
 @app.on_message(filters.command("skip") & filters.group)
 async def skip_song(client, message):
