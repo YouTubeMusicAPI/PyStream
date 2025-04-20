@@ -3,6 +3,7 @@ from pyrogram import Client, filters, idle
 from PyStream.Client import PyStream
 from PyStream.Types import Track
 from PyStream.Queue import AudioQueue
+from PyStream.Utils import get_video_duration  # Import utility function for fetching video duration
 
 API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
@@ -22,7 +23,9 @@ async def play_song(client, message):
     chat_id = message.chat.id
 
     try:
-        track = await Track.create(url)
+        # Manually create Track object with title and duration
+        track_duration = get_video_duration(url)  # Get duration using utility function
+        track = Track(title="Track", url=url, duration=track_duration)
     except Exception as e:
         return await message.reply(f"❌ Error: {e}")
 
@@ -56,7 +59,7 @@ async def stop_playing(client, message):
 async def main():
     await app.start()
     print("🎶 PyStream Music UserBot running...")
-    await asyncio.get_event_loop().create_future()
+    await idle()
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main())
