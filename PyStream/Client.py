@@ -1,72 +1,74 @@
 import asyncio
-import asyncio
-from pyrogram import Client
-from PyStream.Exceptions import VCJoinError
-from PyStream.Utils import download_audio, validate_url
-import subprocess
 import os
+
+from pyrogram import Client
+from .Audio import AudioHandler
+from .Types import Track, QueueItem
+from .Utils import download_audio, validate_url, get_video_duration
+from .Exceptions import StreamException, VCJoinError, InvalidURL, QueueEmptyError
+
 
 class PyStream:
     def __init__(self, client: Client):
         self.client = client
         self.calls = {}
         self.queues = {}
-        self.streams = {}
-        self.active_chats = set()
+        self.ffmpeg_processes = {}
 
-    async def join(self, chat_id: int):
+    async def join(self, chat_id: str) -> None:
         if chat_id in self.calls:
-            raise VCJoinError(f"Already joined voice chat in {chat_id}")
-        
-        try:
-            await self.client.send_message(chat_id, "Joining voice chat")
-            self.calls[chat_id] = True
-            self.active_chats.add(chat_id)
+            raise VCJoinError(f"Already in a call in chat {chat_id}")
+        self.calls[chat_id] = True
+        print(f"[JOIN] {chat_id}")
 
-        except Exception as e:
-            raise VCJoinError(f"Error joining VC: {e}")
-
-    async def leave(self, chat_id: int):
+    async def leave(self, chat_id: str) -> None:
         if chat_id in self.calls:
-            await self.client.send_message(chat_id, "Leaving voice chat")
-            self.calls.pop(chat_id)
-            self._stop_audio(chat_id)
-            self.active_chats.discard(chat_id)
+            await self.stop_audio(chat_id)
+            self.calls.pop(chat_id, None)
+            print(f"[LEAVE] {chat_id}")
         else:
-            raise VCJoinError(f"Not in VC for chat {chat_id}")
+            raise VCJoinError(f"Not in a voice chat for chat {chat_id}")
 
-    def is_active(self, chat_id: int):
-        return chat_id in self.active_chats
-
-    async def stream(self, chat_id: int, url: str):
+    async def stream(self, chat_id: str, url: str) -> None:
         if not validate_url(url):
-            raise Exception("Invalid URL provided.")
-
+            raise InvalidURL("Invalid URL provided.")
         try:
+            await self.join(chat_id)
+            track_duration = get_video_duration(url)
+            track = Track(title="Track", url=url, duration=track_duration)
+            queue_item = QueueItem(track=track, requested_by="User", position=1)
+            self.queues.setdefault(chat_id, []).append(queue_item)
             file_path = download_audio(url)
             await self._play_audio(chat_id, file_path)
-
         except Exception as e:
-            raise VCJoinError(f"Streaming failed: {e}")
+            raise StreamException(f"Error while streaming: {str(e)}")
 
-    async def _play_audio(self, chat_id: int, file_path: str):
-        self._stop_audio(chat_id)
-        try:
-            process = subprocess.Popen(
-                ["ffmpeg", "-i", file_path, "-f", "opus", "-ar", "48000", "-ac", "2", "-b:a", "128k", "-vn", "-"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            self.streams[chat_id] = process
-        except Exception as e:
-            raise VCJoinError(f"Audio playback failed: {e}")
+    async def skip(self, chat_id: str) -> None:
+        if chat_id in self.queues and self.queues[chat_id]:
+            self.queues[chat_id].pop(0)
+            await self._start_next_track(chat_id)
+        else:
+            raise QueueEmptyError("The queue is empty, cannot skip.")
 
-    def _stop_audio(self, chat_id: int):
-        if chat_id in self.streams:
-            process = self.streams[chat_id]
-            process.terminate()
-            self.streams.pop(chat_id)
-            os.remove(process.stdout.name)
+    async def _play_audio(self, chat_id: str, file_path: str) -> None:
+        if chat_id not in self.calls:
+            raise VCJoinError(f"Not in a voice chat for chat {chat_id}")
+        temp_output = AudioHandler.create_temp_file()
+        AudioHandler.stream_audio(file_path, temp_output)
+        self.ffmpeg_processes[chat_id] = temp_output
+        print(f"[PLAY] {chat_id}")
+        await asyncio.sleep(10)
+        await self.stop_audio(chat_id)
 
-    def is_active(self, chat_id: int):
-        return chat_id in self.active_chats
+    async def stop_audio(self, chat_id: str) -> None:
+        output_file = self.ffmpeg_processes.get(chat_id)
+        if output_file and os.path.exists(output_file):
+            os.remove(output_file)
+            print(f"[STOP] {chat_id}")
+        self.ffmpeg_processes.pop(chat_id, None)
+
+    async def _start_next_track(self, chat_id: str) -> None:
+        if chat_id in self.queues and self.queues[chat_id]:
+            next_item = self.queues[chat_id][0]
+            file_path = download_audio(next_item.track.url)
+            await self._play_audio(chat_id, file_path)
