@@ -77,18 +77,26 @@ async def get_stream_url(query):
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
+            # Perform the search and get the results
             info_dict = ydl.extract_info(search_query, download=False)
-            stream_url = info_dict['url']
-            title = info_dict.get('title', 'Unknown Title')
             
-            # Ensure stream URL is valid and audio
-            if 'audio' in stream_url:
-                return stream_url, title
+            # Check if the video entries are available
+            if 'entries' in info_dict and len(info_dict['entries']) > 0:
+                # Get the first video from the search result
+                video_url = info_dict['entries'][0].get('url')
+                title = info_dict['entries'][0].get('title')
+                
+                if video_url:
+                    return video_url, title
+                else:
+                    print("[❌] Error: URL not found in the search result.")
+                    return None, None
             else:
-                raise ValueError("Stream URL is not audio format.")
+                print("[❌] Error: No entries found.")
+                return None, None
         except Exception as e:
-            print(f"[❌] Error fetching stream URL: {e}")
-            raise Exception("Error fetching stream URL.")
+            print(f"[❌] Error searching for song: {e}")
+            return None, None
             
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
