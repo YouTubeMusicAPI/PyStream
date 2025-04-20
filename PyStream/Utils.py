@@ -17,7 +17,7 @@ def download_audio(url: str, output_format='mp3') -> str:
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
+        info_dict = ydl.extract_info(url, download=false)
         filename = ydl.prepare_filename(info_dict)
         output_path = filename.replace(".webm", f".{output_format}")
         AudioHandler.convert_to_mp3(filename, output_path)
