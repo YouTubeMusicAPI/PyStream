@@ -14,7 +14,7 @@ app = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, session_string=SESSIO
 vc = PyStream(app)
 queue = AudioQueue()
 
-
+"""
 YDL_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio/best",
     "quiet": True,
@@ -60,6 +60,35 @@ async def get_stream_url(query: str) -> tuple[str, str]:
     print(f"[🎧] Final Stream URL: {stream_url}")
     
     return stream_url, title
+"""
+
+import yt_dlp
+
+async def get_stream_url(query):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'extractaudio': True,
+        'audioquality': 1,  # Highest quality audio
+        'outtmpl': 'downloads/%(id)s.%(ext)s',
+        'quiet': True,
+        'cookiefile': "cookies/cookies.txt",
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            info_dict = ydl.extract_info(query, download=False)
+            stream_url = info_dict['url']
+            title = info_dict.get('title', 'Unknown Title')
+            
+            # Ensure stream URL is valid and audio
+            if 'audio' in stream_url:
+                return stream_url, title
+            else:
+                raise ValueError("Stream URL is not audio format.")
+        except Exception as e:
+            print(f"[❌] Error fetching stream URL: {e}")
+            raise Exception("Error fetching stream URL.")
+            
 @app.on_message(filters.command("play") & filters.group)
 async def play_song(client, message):
     if len(message.command) < 2:
