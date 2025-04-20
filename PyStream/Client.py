@@ -16,21 +16,21 @@ class PyStream:
         self.ffmpeg_processes = {}
 
     async def join(self, chat_id: str) -> None:
-    try:
-        if chat_id in self.calls:
-            raise VCJoinError(f"Already in a call in chat {chat_id}")
-        
-        self.calls[chat_id] = True
-        print(f"[JOIN] Successfully joined VC in {chat_id}")
-        
-        chat = await self.client.get_chat(chat_id)
-        if not chat or not chat.type == "supergroup" or not chat.permissions.can_send_messages:
-            raise VCJoinError(f"Bot cannot join the VC in chat {chat_id} due to permissions or chat type.")
-        
-    except VCJoinError as e:
-        print(f"[ERROR] {str(e)}")
-    except Exception as e:
-        print(f"[ERROR] Failed to join VC in {chat_id}: {str(e)}")
+        try:
+            if chat_id in self.calls:
+                raise VCJoinError(f"Already in a call in chat {chat_id}")
+            
+            self.calls[chat_id] = True
+            print(f"[JOIN] Successfully joined VC in {chat_id}")
+            
+            chat = await self.client.get_chat(chat_id)
+            if not chat or not chat.type == "supergroup" or not chat.permissions.can_send_messages:
+                raise VCJoinError(f"Bot cannot join the VC in chat {chat_id} due to permissions or chat type.")
+            
+        except VCJoinError as e:
+            print(f"[ERROR] {str(e)}")
+        except Exception as e:
+            print(f"[ERROR] Failed to join VC in {chat_id}: {str(e)}")
 
     async def leave(self, chat_id: str) -> None:
         if chat_id in self.calls:
