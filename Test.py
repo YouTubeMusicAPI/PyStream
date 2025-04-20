@@ -9,7 +9,7 @@ API_ID = 6067591
 API_HASH = "94e17044c2393f43fda31d3afe77b26b"
 SESSION = "YOUR_SESSION_STRING"
 
-app = Client("MusicBotUser", api_id=API_ID, api_hash=API_HASH, session_string=SESSION)
+app = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, session_string=SESSION)
 
 vc = PyStream(app)
 queue = AudioQueue()
