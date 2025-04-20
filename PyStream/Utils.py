@@ -1,6 +1,7 @@
 import yt_dlp
 import re
 import os
+import asyncio
 from YouTubeMusic.YtSearch import Search
 from .Audio import AudioHandler
 
