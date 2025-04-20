@@ -32,9 +32,9 @@ async def main():
         try:
             await app.join_voice_chat(chat.id)
             print("✅ Joined voice chat successfully.")
-    except Exception as e:
-        print(f"[ERROR] Failed to get chat info or join chat: {e}")
-        return
+        except Exception as e:
+           print(f"[ERROR] Failed to get chat info or join chat: {e}")
+           return
 
     try:
         await pystream.join(CHAT_USERNAME)
